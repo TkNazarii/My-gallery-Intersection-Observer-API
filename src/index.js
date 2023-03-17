@@ -13,45 +13,52 @@ const refs = {
   form: document.querySelector('.search-form'),
   myInput: document.querySelector('.search-input'),
   wraperGalery: document.querySelector('.gallery'),
-  loadMore: document.querySelector('.loadMore'),
+  //   loadMore: document.querySelector('.loadMore'),
+  guard: document.querySelector('.wrapper-buton'),
 };
 // Destructuring
 const {
   form,
   myInput,
   wraperGalery,
-  loadMore,
+  //   loadMore,
+  guard,
 } = refs;
 
 let myPage = 1;
 
+let options = {
+  root: null,
+  rootMargin: '300px',
+  threshold: 1.0,
+};
+
 //listening
 form.addEventListener('submit', onSubmit);
-loadMore.addEventListener('click', addImage);
+// loadMore.addEventListener('click', addImage);
 
 // start SimpleLightbox
 const lightbox = new SimpleLightbox('.gallery a', { captionDelay: 250 });
-// function click search
+// click search
 async function onSubmit(event) {
-	event.preventDefault();
-	wraperGalery.innerHTML = '';
-	myPage = 1;
+  event.preventDefault();
+  wraperGalery.innerHTML = '';
+  myPage = 1;
 
-	const myInputValue = myInput.value
-	const myValue = myInputValue.trim()
+  const myInputValue = myInput.value;
+  const myValue = myInputValue.trim();
 
-	if (!myValue) {
-		loadMore.hidden = true
-		return
-	}
+  if (!myValue) {
+    // loadMore.hidden = true
+    return;
+  }
 
- return await fetchThen(myValue);
+  return await fetchThen(myValue);
 }
 
-// loadMore.hidden = false // +
-loadMore.hidden = true // -
+// loadMore.hidden = true // -
 
-// Processing the request
+//// Processing the request
 async function fetchThen(value) {
   try {
     const resp = await fetchImage(value);
@@ -61,30 +68,29 @@ async function fetchThen(value) {
     if (myArr.length === 0) {
       Notiflix.Notify.info(
         'Sorry, there are no images matching your search query. Please try again.'
-      ) 
-	  loadMore.hidden = true // -
+      );
+      //   loadMore.hidden = true // -
       return;
-	}
-	
-    if (myNumber > 0) {
-		Notiflix.Notify.info(`Hooray! We found ${myNumber} images.`);
-	}
-	
-    createMarkup(myArr, wraperGalery);
-    lightbox.refresh();
-	loadMore.hidden = false // +
-	// loadMore.classList.add("style-class")
-	
-	if (myArr.length < 20) {
-   loadMore.hidden = true // -
-   }
+    }
 
+    if (myNumber > 0) {
+      Notiflix.Notify.info(`Hooray! We found ${myNumber} images.`);
+    }
+
+    createMarkup(myArr, wraperGalery);
+    observer.observe(guard);
+    lightbox.refresh();
+    // loadMore.hidden = false // +
+
+    if (myArr.length < 20) {
+    //    loadMore.hidden = true // -
+    }
   } catch (error) {
     console.log(error);
   }
 }
 
-// function click addIMG
+// // click addIMG
 async function addImage() {
   const value2 = myInput.value;
   let limitAdd;
@@ -96,19 +102,31 @@ async function addImage() {
     lightbox.refresh();
 
     if (resp.data.hits.length < limitAdd) {
-      loadMore.hidden = true;
+      //   loadMore.hidden = true;
     }
   } catch (error) {
     console.log(error);
   }
 }
 
-// function scrole
-function onPageScrolling() {
-  const { height: cardHeight } =
-    wraperGalery.firstElementChild.getBoundingClientRect();
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
+// //jump scrole for button
+// function onPageScrolling() {
+// 	const { height: cardHeight } =
+//     wraperGalery.firstElementChild.getBoundingClientRect();
+// 	window.scrollBy({
+//     top: cardHeight * 2,
+//     behavior: 'smooth',
+//   });
+// }
+
+// my intersectionObserver
+let observer = new IntersectionObserver(onInfinityLoad, options);
+
+function onInfinityLoad(entries, observer) {
+//   console.log(entries);
+  entries.forEach(entri => {
+    if (entri.isIntersecting) {
+      addImage();
+    }
   });
 }
