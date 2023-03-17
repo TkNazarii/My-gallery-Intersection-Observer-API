@@ -84,6 +84,7 @@ async function fetchThen(value) {
 
     if (myArr.length < 20) {
     //    loadMore.hidden = true // -
+	observer.unobserve(guard)
     }
   } catch (error) {
     console.log(error);
@@ -101,9 +102,9 @@ async function addImage() {
     onPageScrolling();
     lightbox.refresh();
 
-    if (resp.data.hits.length < limitAdd) {
-      //   loadMore.hidden = true;
-    }
+    // if (resp.data.hits.length < limitAdd) {
+    //   //   loadMore.hidden = true;
+    // }
   } catch (error) {
     console.log(error);
   }
